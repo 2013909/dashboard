@@ -258,9 +258,6 @@
         dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
     });
 
-    // ==========================================
-    // 🛑 TEACHER SETTINGS: MULTIPLE CLASSES 🛑
-    // ==========================================
     const classData = {
         "class1": {
             title: "Block 2 Algebra I",
@@ -282,9 +279,6 @@
         }
     };
 
-    // ==========================================
-    // BASE SYSTEM VARIABLES
-    // ==========================================
     const allSeats = document.querySelectorAll('.seat');
     const absentZone = document.getElementById('absent-zone');
     let isEditMode = false;
@@ -294,9 +288,6 @@
     let currentClassId = "class1"; 
     let selectedElement = null; 
 
-    // ==========================================
-    // TAB SWITCHING & SAVING LOGIC
-    // ==========================================
     function switchClass(classId) {
         saveClassData();
         currentClassId = classId;
@@ -390,9 +381,6 @@
         }
     }
 
-    // ==========================================
-    // PHYSICAL SEAT MOVEMENT (FOR EDIT MODE)
-    // ==========================================
     function startMove(e) {
         if (!isEditMode) return;
         const target = e.target;
@@ -426,10 +414,6 @@
     document.addEventListener('touchmove', doMove, {passive: false});
     document.addEventListener('touchend', endMove);
 
-    // ==========================================
-    // ⬇️ THE NEW "TAP TO SWAP" LOGIC ⬇️
-    // ==========================================
-    
     function selectElement(el) {
         if (selectedElement) selectedElement.classList.remove('selected');
         selectedElement = el;
@@ -522,9 +506,6 @@
         }
     }
 
-    // ==========================================
-    // DAILY TOOLS: CALLER & GROUPS
-    // ==========================================
     function resetCalledList() {
         calledStudents = [];
         updateCalledDisplay();
@@ -611,9 +592,6 @@
         return true;
     }
 
-    // ==========================================
-    // CLASS TIMER, SOFTER CHIME & BACKGROUND MUSIC
-    // ==========================================
     let timeRemaining = 5 * 60; 
     let currentPreset = 5 * 60; 
     let timerInterval = null;
@@ -716,13 +694,10 @@
         }
     }
 
-    // ==========================================
-    // SMART SEATING ALGORITHM
-    // ==========================================
     function generateSmartChart() {
         selectElement(null); 
         for (let i = 0; i < 1000; i++) { if (attemptLayout()) return; }
-        alert("Couldn't find a perfect seating arrangement! Double-check that your rules aren't conflicting (e.g., trying to put 4 students in the 'Front' when there are only 3 front desks).");
+        alert("Couldn't find a perfect seating arrangement! Double-check that your rules aren't conflicting.");
     }
 
     function attemptLayout() {
@@ -796,5 +771,4 @@
     updateTimerDisplay();
 </script>
 </body>
-
 </html>
