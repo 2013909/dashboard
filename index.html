@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Classroom Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Teachers:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/default.css">
+    <script src="https://cdn.jsdelivr.net/npm/mobile-drag-drop@2.3.0-rc.2/index.min.js"></script>
+
+    <style>
+        /* ========================================== */
+        /* 🎨 SWEET SUMMER MELODY + LAVENDER PALETTE 🎨 */
+        /* ========================================== */
+        
+        body { font-family: 'Teachers', sans-serif; margin: 0; background: #CBB2D6; display: flex; height: 100vh; overflow: hidden; user-select: none; }
+        
+        /* LEFT SIDEBAR STYLING */
+        #sidebar { 
+            width: 300px; padding: 20px; display: flex; flex-direction: column; gap: 12px; 
+            background: #84A59D; color: #F7EDE2; z-index: 10; box-shadow: 2px 0 10px rgba(0,0,0,0.2); overflow-y: auto; flex-shrink: 0;
+        }
+        
+        .btn { 
+            padding: 10px; cursor: pointer; border: none; border-radius: 6px; font-family: 'Teachers', sans-serif; 
+            font-weight: 700; text-align: center; transition: 0.2s; font-size: 14px; color: #000000;
+        }
+        
+        /* PURPLE BUTTONS */
+        .btn-purple { background: #CBB2D6; color: #000000; } 
+        .btn-purple:hover { background: #F7EDE2; } 
+        
+        /* EDITING & ACTIVE TAB BUTTONS */
+        .btn-editing { background: #8E84A5; color: #ffffff; } 
+        .btn-editing:hover { background: #F7EDE2; color: #000000; }
+        
+        /* SECTION HEADERS (YELLOW) */
+        .section-title { 
+            font-size: 12px; font-weight: 800; text-transform: uppercase; color: #F6BD60; 
+            margin-top: 10px; border-bottom: 1px solid #F7EDE2; padding-bottom: 5px; letter-spacing: 1px; 
+        }
+
+        /* TAB BAR STYLING */
+        .tab-container { display: flex; gap: 5px; margin-bottom: 5px; }
+        .tab-btn { flex: 1; padding: 8px; font-size: 14px; }
+
+        /* AGENDA STYLING */
+        #agenda-box {
+            width: 100%; min-height: 250px; background: #F7EDE2; color: #000000;
+            border: none; border-radius: 6px; padding: 15px; font-family: 'Teachers', sans-serif;
+            font-size: 20px; font-weight: 700; resize: vertical; outline: none; box-sizing: border-box;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); line-height: 1.4; flex-shrink: 0;
+        }
+        #agenda-box::placeholder { color: #84A59D; opacity: 0.7; font-size: 18px; }
+
+        /* TIMER STYLING */
+        #timer-display {
+            font-size: 56px; font-weight: 800; text-align: center; color: #F7EDE2;
+            margin: 5px 0; font-variant-numeric: tabular-nums; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            transition: color 0.3s;
+        }
+        .timer-controls { display: flex; flex-direction: column; gap: 8px; margin-top: 5px; }
+        
+        /* CUSTOM INPUT STYLING */
+        .time-input {
+            width: 50px; border-radius: 6px; border: none; padding: 8px 4px; 
+            font-family: 'Teachers', sans-serif; font-size: 16px; font-weight: 800; 
+            text-align: center; color: #000000; background: #F7EDE2; outline: none;
+        }
+        .time-input::-webkit-outer-spin-button, .time-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .time-input[type=number] { -moz-appearance: textfield; }
+
+        /* ABSENT BIN STYLING */
+        #absent-zone {
+            min-height: 50px; background: rgba(247, 237, 226, 0.2); border: 2px dashed #F7EDE2;
+            border-radius: 6px; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; transition: 0.2s;
+            justify-content: center; margin-bottom: 5px; cursor: pointer;
+        }
+        #absent-zone:hover { background: rgba(203, 178, 214, 0.4); border-color: #CBB2D6; }
+        
+        /* ABSENT TAGS (LAVENDER) */
+        .absent-tag {
+            background: #CBB2D6; color: #000000; 
+            width: 75px; height: 45px; 
+            border-radius: 12px;
+            font-size: 13px; font-weight: 700; 
+            cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            line-height: 1.1; padding: 4px; box-sizing: border-box; transition: 0.2s;
+        }
+
+        /* LISTS (Called) */
+        .status-list { 
+            font-size: 13px; font-weight: 700; line-height: 1.6; 
+            color: #C9C3D6; max-height: 85px; overflow-y: auto; flex-shrink: 0;
+            padding-right: 5px; 
+        }
+        .status-list::-webkit-scrollbar { width: 4px; }
+        .status-list::-webkit-scrollbar-thumb { background-color: #CBB2D6; border-radius: 4px; }
+
+        #canvas-container { flex-grow: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 40px; position: relative; }
+        
+        /* CLASSROOM MAP */
+        #floor { 
+            position: relative; width: 914px; height: 728px; 
+            background-image: url('classroom.png'); 
+            background-size: 100% 100%; background-repeat: no-repeat;
+            background-color: white; box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            border-radius: 8px; flex-shrink: 0;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+        }
+
+        /* VIOLET EDITING BORDERS */
+        #floor.editing { border: 4px dashed #8E84A5; }
+        #floor.editing .seat { cursor: move; box-shadow: 0 0 10px #8E84A5; border: 2px solid #8E84A5; }
+
+        /* SEAT BUBBLES */
+        .seat { 
+            position: absolute; width: 70px; height: 70px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 13px; font-weight: 800; text-align: center; line-height: 1.1;
+            cursor: pointer; background: #F7EDE2; border: 2px solid #84A59D;
+            color: #000000; box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translate(-50%, -50%); transition: all 0.2s;
+            touch-action: none; -webkit-user-select: none; -webkit-touch-callout: none;
+        }
+        
+        .seat.empty { background: transparent; border: 2px dashed #84A59D; color: transparent; box-shadow: none; cursor: default; }
+        .seat.occupied { border: 2px solid #84A59D; }
+        
+        /* TAP TO SWAP HIGHLIGHT GLOW */
+        .selected {
+            box-shadow: 0 0 0 4px #CBB2D6, 0 0 15px rgba(203, 178, 214, 0.8) !important;
+            border-color: #8E84A5 !important;
+            transform: translate(-50%, -50%) scale(1.15) !important;
+            z-index: 500;
+        }
+        .absent-tag.selected { transform: scale(1.15) !important; }
+
+        /* RANDOM CALLER HIGHLIGHT (VIOLET BORDER) */
+        .seat.highlighted { 
+            background: #F6BD60; color: #000000; border: 3px solid #8E84A5;
+            transform: translate(-50%, -50%) scale(2.2) !important; 
+            box-shadow: 0 0 30px 10px rgba(142, 132, 165, 0.8) !important; z-index: 1000; 
+        }
+
+        /* MODAL FOR GROUPS */
+        #group-modal {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #F7EDE2; padding: 25px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 2000; width: 80%; max-width: 600px; color: #000000;
+        }
+        #group-modal h2 { margin-top: 0; color: #84A59D; font-weight: 800; }
+        .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; margin-top: 15px; }
+        .group-card { background: #FFFFFF; border: 1px solid #84A59D; padding: 10px; border-radius: 8px; text-align: center; }
+        .group-card h4 { margin: 0 0 5px 0; color: #84A59D; border-bottom: 1px solid #C9C3D6; padding-bottom: 5px; font-weight: 700; }
+        .group-card p { margin: 2px 0; font-size: 14px; font-weight: 600; color: #000000; }
+        .close-btn { background: #84A59D; color: #F7EDE2; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-family: 'Teachers', sans-serif; font-weight: 700; margin-top: 20px; width: 100%; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3"></audio>
+
+<div id="sidebar">
+    <div class="tab-container">
+        <button id="tab-class1" class="btn btn-editing tab-btn" onclick="switchClass('class1')">Block 2</button>
+        <button id="tab-class2" class="btn btn-purple tab-btn" onclick="switchClass('class2')">Block 1b</button>
+    </div>
+
+    <h3 id="class-title" style="margin: 5px 0 5px 0; text-align: center; font-size: 18px; font-weight: 800; color: #F7EDE2; background: #CBB2D6; padding: 10px; border-radius: 8px;">Block 2 Algebra I</h3>
+    
+    <div class="section-title" style="margin-top: 0; font-size: 20px; text-align: center; letter-spacing: 2px; padding-bottom: 5px; color: #F7EDE2;">
+        <img src="logo.png" style="height: 18px; vertical-align: middle; margin-right: 5px; margin-top: -4px;">AGENDA
+    </div>
+    <textarea id="agenda-box" placeholder="Type today's agenda here..." oninput="saveClassData()"></textarea>
+
+    <div class="section-title" style="margin-top: 10px; text-align: center; border-bottom: none;">Absent Zone</div>
+    <div id="absent-zone">
+        <span style="font-size: 13px; font-weight: 600; opacity: 0.6; margin: auto; pointer-events: none; color: #F7EDE2;">Tap to drop here</span>
+    </div>
+
+    <button id="mode-btn" class="btn btn-purple" onclick="toggleMode()">🛠️ Unlock Layout</button>
+    <button class="btn btn-purple" onclick="generateSmartChart()">🔀 Smart Shuffle</button>
+    
+    <div style="display: flex; gap: 8px;">
+        <button class="btn btn-purple" onclick="callRandomStudent()" style="flex: 2;">🎯 Random Student</button>
+        <button class="btn btn-purple" onclick="resetCalledList()" style="flex: 1; font-size: 12px; padding: 8px;">🔄 Reset</button>
+    </div>
+    <div id="called-list" class="status-list"></div>
+
+    <button class="btn btn-purple" onclick="generateGroups()">👥 Random Groups</button>
+
+    <div id="timer-display" style="margin-top: 10px;">05:00</div>
+    
+    <div style="display: flex; gap: 4px; margin-bottom: 5px; align-items: center; justify-content: center;">
+        <input type="number" id="custom-mins" placeholder="Min" min="0" max="120" class="time-input">
+        <span style="color: #F7EDE2; font-weight: 800; font-size: 18px;">:</span>
+        <input type="number" id="custom-secs" placeholder="Sec" min="0" max="59" class="time-input">
+        <button class="btn btn-purple" onclick="applyCustomTime()" style="flex-grow: 1; padding: 8px;">Set</button>
+    </div>
+    
+    <div class="timer-controls">
+        <button class="btn btn-purple" onclick="startTimer()" style="background: #F6BD60;">▶ Play</button>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-purple" onclick="pauseTimer()" style="flex: 1;">⏸ Pause</button>
+            <button class="btn btn-purple" onclick="resetTimer()" style="flex: 1;">🔄 Reset</button>
+        </div>
+        
+        <div style="display: flex; gap: 8px; margin-top: 5px;">
+            <button id="music-toggle" class="btn btn-purple" onclick="toggleMusic()" style="flex: 1; font-size: 12px;">🎵 Music: ON</button>
+            <button class="btn btn-purple" onclick="playSoftChime()" style="flex: 1; font-size: 12px; background: #8E84A5; color: white;">🔊 Test Chime</button>
+        </div>
+    </div>
+</div>
+
+<div id="canvas-container">
+    <div id="floor">
+        <div class="seat" style="left: 140px; top: 140px;" id="seat-1" data-table="t1"></div>
+        <div class="seat" style="left: 100px; top: 210px;" id="seat-2" data-table="t1"></div>
+        <div class="seat" style="left: 180px; top: 210px;" id="seat-3" data-table="t1"></div>
+        <div class="seat" style="left: 410px; top: 166px;" id="seat-4" data-table="t2" data-zone="front"></div>
+        <div class="seat" style="left: 490px; top: 166px;" id="seat-5" data-table="t2" data-zone="front"></div>
+        <div class="seat" style="left: 706px; top: 217px;" id="seat-6" data-table="t3"></div>
+        <div class="seat" style="left: 790px; top: 217px;" id="seat-7" data-table="t3"></div>
+        <div class="seat" style="left: 748px; top: 292px;" id="seat-8" data-table="t3"></div>
+        <div class="seat" style="left: 144px; top: 442px;" id="seat-9" data-table="t4"></div>
+        <div class="seat" style="left: 104px; top: 517px;" id="seat-10" data-table="t4"></div>
+        <div class="seat" style="left: 184px; top: 517px;" id="seat-11" data-table="t4"></div>
+        <div class="seat" style="left: 408px; top: 375px;" id="seat-12" data-table="t5"></div>
+        <div class="seat" style="left: 490px; top: 375px;" id="seat-13" data-table="t5"></div>
+        <div class="seat" style="left: 450px; top: 451px;" id="seat-14" data-table="t5"></div>
+        <div class="seat" style="left: 782px; top: 485px;" id="seat-15" data-table="t6"></div>
+        <div class="seat" style="left: 866px; top: 448px;" id="seat-16" data-table="t6"></div>
+        <div class="seat" style="left: 66px; top: 555px;" id="seat-17" data-table="t7" data-zone="back"></div>
+        <div class="seat" style="left: 127px; top: 608px;" id="seat-18" data-table="t7" data-zone="back"></div>
+        <div class="seat" style="left: 188px; top: 662px;" id="seat-19" data-table="t7" data-zone="back"></div>
+        <div class="seat" style="left: 344px; top: 520px;" id="seat-20" data-table="d1" data-zone="alone"></div>
+        <div class="seat" style="left: 450px; top: 520px;" id="seat-21" data-table="d2" data-zone="alone"></div>
+        <div class="seat" style="left: 556px; top: 520px;" id="seat-22" data-table="d3" data-zone="alone"></div>
+        <div class="seat" style="left: 388px; top: 642px;" id="seat-23" data-table="t8" data-zone="back"></div>
+        <div class="seat" style="left: 450px; top: 642px;" id="seat-24" data-table="t8" data-zone="back"></div>
+        <div class="seat" style="left: 512px; top: 642px;" id="seat-25" data-table="t8" data-zone="back"></div>
+        <div class="seat" style="left: 550px; top: 120px;" id="seat-26" data-table="t2" data-zone="front"></div>
+    </div>
+
+    <div id="group-modal">
+        <h2>👥 Random Groups</h2>
+        <p style="font-size: 14px; font-weight: 600; color: #84A59D; margin-top: -10px;">Absent students were excluded. Rules were applied.</p>
+        <div class="group-grid" id="group-container"></div>
+        <button class="close-btn" onclick="document.getElementById('group-modal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<script>
+    MobileDragDrop.polyfill({
+        dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+    });
+
+    // ==========================================
+    // 🛑 TEACHER SETTINGS: MULTIPLE CLASSES 🛑
+    // ==========================================
+    const classData = {
+        "class1": {
+            title: "Block 2 Algebra I",
+            students: ["Tywan", "Za-Myria", "ShaTierra", "Noemi", "Brandon", "Sha'Mahge", "Ta'Tiana", "Yosiel", "KateLyn", "James", "Donte", "Jamar", "Ja'Myllah", "Jack", "RaNiyah", "Nefera", "Marquis", "Miles", "Parris", "Alijajuan", "Justice", "Zion"],
+            needsFront: [], 
+            needsBack: ["Tywan"], 
+            needsAlone: [], 
+            keepApart: [ ["Jack", "Marquis"], ["Yosiel", "Sha'Mahge"] ],
+            keepTogether: [ ["Noemi", "Ta'Tiana"] ]
+        },
+        "class2": {
+            title: "Block 1b Math Lab",
+            students: ["Asha", "Bana", "Omar", "Farhat", "Arafa", "Selihom", "Jayonna", "Nefera", "De'Arie", "Simon", "Umran", "Joyce", "Franck", "Migueldina", "Gianna", "Dermacline", "Josehinnie", "Mohammad", "Kamaria", "Sadia", "Jazmyn", "Sehmuz", "Subhan"],
+            needsFront: [], 
+            needsBack: [], 
+            needsAlone: [], 
+            keepApart: [],
+            keepTogether: []
+        }
+    };
+
+    // ==========================================
+    // BASE SYSTEM VARIABLES
+    // ==========================================
+    const allSeats = document.querySelectorAll('.seat');
+    const absentZone = document.getElementById('absent-zone');
+    let isEditMode = false;
+    let movingSeat = null;
+    let startX, startY, initialLeft, initialTop;
+    let calledStudents = []; 
+    let currentClassId = "class1"; 
+    let selectedElement = null; 
+
+    // ==========================================
+    // TAB SWITCHING & SAVING LOGIC
+    // ==========================================
+    function switchClass(classId) {
+        saveClassData();
+        currentClassId = classId;
+        
+        document.getElementById('tab-class1').className = (classId === 'class1') ? 'btn btn-editing tab-btn' : 'btn btn-purple tab-btn';
+        document.getElementById('tab-class2').className = (classId === 'class2') ? 'btn btn-editing tab-btn' : 'btn btn-purple tab-btn';
+        document.getElementById('class-title').innerText = classData[classId].title;
+
+        selectElement(null); 
+        loadClassData();
+    }
+
+    function saveSeatPositions() {
+        allSeats.forEach(seat => {
+            localStorage.setItem(seat.id + '-left', seat.style.left);
+            localStorage.setItem(seat.id + '-top', seat.style.top);
+        });
+    }
+
+    function loadSeatPositions() {
+        allSeats.forEach(seat => {
+            if(localStorage.getItem(seat.id + '-left')) seat.style.left = localStorage.getItem(seat.id + '-left');
+            if(localStorage.getItem(seat.id + '-top')) seat.style.top = localStorage.getItem(seat.id + '-top');
+        });
+    }
+
+    function saveClassData() {
+        let seatAssignments = {};
+        allSeats.forEach(seat => { seatAssignments[seat.id] = seat.innerText; });
+        
+        let absentStudents = [];
+        document.querySelectorAll('.absent-tag').forEach(t => absentStudents.push(t.innerText));
+        
+        let classState = {
+            seats: seatAssignments,
+            absent: absentStudents,
+            called: calledStudents,
+            agenda: document.getElementById('agenda-box').value
+        };
+        localStorage.setItem(currentClassId + '_state', JSON.stringify(classState));
+    }
+
+    function loadClassData() {
+        let savedStateStr = localStorage.getItem(currentClassId + '_state');
+        
+        allSeats.forEach(s => { s.innerText = ""; updateStatus(s); });
+        absentZone.innerHTML = `<span style="font-size: 13px; font-weight: 600; opacity: 0.5; margin: auto; pointer-events: none; color: #F7EDE2;">Tap to drop here</span>`;
+        calledStudents = [];
+        document.getElementById('agenda-box').value = "";
+        updateCalledDisplay();
+        
+        if (savedStateStr) {
+            let savedState = JSON.parse(savedStateStr);
+            
+            allSeats.forEach(s => {
+                s.innerText = savedState.seats[s.id] || "";
+                updateStatus(s);
+            });
+            
+            if (savedState.absent && savedState.absent.length > 0) {
+                absentZone.innerHTML = "";
+                savedState.absent.forEach(name => {
+                    const tag = document.createElement('div');
+                    tag.className = 'absent-tag';
+                    tag.innerText = name;
+                    absentZone.appendChild(tag);
+                });
+            }
+            
+            calledStudents = savedState.called || [];
+            updateCalledDisplay();
+            document.getElementById('agenda-box').value = savedState.agenda || "";
+            
+        } else {
+            generateSmartChart(); 
+        }
+    }
+
+    function toggleMode() {
+        isEditMode = !isEditMode;
+        selectElement(null); 
+        const btn = document.getElementById('mode-btn');
+        const floor = document.getElementById('floor');
+        if (isEditMode) {
+            btn.innerHTML = "🔒 Lock Layout"; btn.classList.replace('btn-purple', 'btn-editing');
+            floor.classList.add('editing'); 
+        } else {
+            btn.innerHTML = "🛠️ Unlock Layout"; btn.classList.replace('btn-editing', 'btn-purple');
+            floor.classList.remove('editing'); 
+            saveSeatPositions(); 
+        }
+    }
+
+    // ==========================================
+    // PHYSICAL SEAT MOVEMENT (FOR EDIT MODE)
+    // ==========================================
+    function startMove(e) {
+        if (!isEditMode) return;
+        const target = e.target;
+        if (target.classList.contains('seat')) {
+            movingSeat = target; 
+            const evt = e.type.includes('touch') ? e.touches[0] : e;
+            startX = evt.clientX;
+            startY = evt.clientY;
+            initialLeft = parseFloat(movingSeat.style.left) || 0; 
+            initialTop = parseFloat(movingSeat.style.top) || 0;
+            if (e.type.includes('touch')) e.preventDefault(); 
+        }
+    }
+
+    function doMove(e) {
+        if (!isEditMode || !movingSeat) return;
+        const evt = e.type.includes('touch') ? e.touches[0] : e;
+        movingSeat.style.left = (initialLeft + (evt.clientX - startX)) + 'px';
+        movingSeat.style.top = (initialTop + (evt.clientY - startY)) + 'px';
+        if (e.type.includes('touch')) e.preventDefault();
+    }
+
+    function endMove() { movingSeat = null; }
+
+    const floor = document.getElementById('floor');
+    floor.addEventListener('mousedown', startMove);
+    document.addEventListener('mousemove', doMove);
+    document.addEventListener('mouseup', endMove);
+
+    floor.addEventListener('touchstart', startMove, {passive: false});
+    document.addEventListener('touchmove', doMove, {passive: false});
+    document.addEventListener('touchend', endMove);
+
+    // ==========================================
+    // ⬇️ THE NEW "TAP TO SWAP" LOGIC ⬇️
+    // ==========================================
+    
+    function selectElement(el) {
+        if (selectedElement) selectedElement.classList.remove('selected');
+        selectedElement = el;
+        if (selectedElement) selectedElement.classList.add('selected');
+    }
+
+    allSeats.forEach(seat => {
+        seat.addEventListener('click', (e) => {
+            if (isEditMode) return; 
+            if (!selectedElement && !seat.innerText.trim()) return;
+
+            if (!selectedElement) {
+                selectElement(seat);
+            } else if (selectedElement === seat) {
+                selectElement(null);
+            } else {
+                let tempName = seat.innerText;
+                
+                if (selectedElement.classList.contains('absent-tag')) {
+                    seat.innerText = selectedElement.innerText;
+                    if (tempName) {
+                        selectedElement.innerText = tempName; 
+                    } else {
+                        selectedElement.remove(); 
+                    }
+                } else {
+                    seat.innerText = selectedElement.innerText;
+                    selectedElement.innerText = tempName;
+                }
+                
+                updateStatus(seat);
+                if (!selectedElement.classList.contains('absent-tag')) updateStatus(selectedElement);
+                
+                selectElement(null);
+                updateAbsentDisplay();
+                saveClassData();
+            }
+        });
+    });
+
+    absentZone.addEventListener('click', (e) => {
+        if (isEditMode) return;
+        
+        if (e.target.classList.contains('absent-tag')) {
+            if (!selectedElement) {
+                selectElement(e.target); 
+            } else if (selectedElement === e.target) {
+                selectElement(null); 
+            } else {
+                if (selectedElement.classList.contains('seat')) {
+                    let tempName = e.target.innerText;
+                    e.target.innerText = selectedElement.innerText;
+                    selectedElement.innerText = tempName;
+                    updateStatus(selectedElement);
+                    selectElement(null);
+                    updateAbsentDisplay();
+                    saveClassData();
+                }
+            }
+            return;
+        }
+
+        if (selectedElement && selectedElement.classList.contains('seat') && selectedElement.innerText.trim()) {
+            const name = selectedElement.innerText;
+            selectedElement.innerText = "";
+            updateStatus(selectedElement);
+            
+            const tag = document.createElement('div');
+            tag.className = 'absent-tag';
+            tag.innerText = name;
+            absentZone.appendChild(tag);
+            
+            selectElement(null);
+            updateAbsentDisplay();
+            saveClassData();
+        }
+    });
+
+    function updateStatus(el) {
+        if(el.innerText.trim() !== "") { el.classList.add('occupied'); el.classList.remove('empty'); } 
+        else { el.classList.remove('occupied'); el.classList.add('empty'); }
+    }
+
+    function updateAbsentDisplay() {
+        if(absentZone.querySelectorAll('.absent-tag').length === 0) {
+            absentZone.innerHTML = `<span style="font-size: 13px; font-weight: 600; opacity: 0.5; margin: auto; pointer-events: none; color: #F7EDE2;">Tap to drop here</span>`;
+        } else {
+            let span = absentZone.querySelector('span');
+            if (span) span.remove();
+        }
+    }
+
+    // ==========================================
+    // DAILY TOOLS: CALLER & GROUPS
+    // ==========================================
+    function resetCalledList() {
+        calledStudents = [];
+        updateCalledDisplay();
+        saveClassData(); 
+    }
+
+    function updateCalledDisplay() {
+        const listDiv = document.getElementById('called-list');
+        if(calledStudents.length === 0) {
+            listDiv.innerHTML = `<span style="opacity: 0.5; color: #F7EDE2;">No one called yet.</span>`;
+        } else {
+            listDiv.innerHTML = `🗣️ Called:<br>${calledStudents.join('<br>')}`;
+        }
+    }
+
+    function callRandomStudent() {
+        const presentStudents = Array.from(allSeats).filter(s => s.innerText);
+        if(presentStudents.length === 0) { alert("No students present on the board!"); return; }
+
+        let availableToCall = presentStudents.filter(s => !calledStudents.includes(s.innerText));
+
+        if (availableToCall.length === 0) {
+            alert("Everyone present has been called on! The list will now reset.");
+            resetCalledList();
+            availableToCall = presentStudents; 
+        }
+
+        allSeats.forEach(s => s.classList.remove('highlighted'));
+        
+        const winner = availableToCall[Math.floor(Math.random() * availableToCall.length)];
+        winner.classList.add('highlighted');
+        
+        calledStudents.push(winner.innerText);
+        updateCalledDisplay();
+        saveClassData(); 
+
+        setTimeout(() => { winner.classList.remove('highlighted'); }, 4000);
+    }
+
+    function generateGroups() {
+        const presentNames = Array.from(allSeats).filter(s => s.innerText).map(s => s.innerText);
+        if(presentNames.length < 2) return;
+        
+        const currentRules = classData[currentClassId];
+
+        let validGroups = null;
+        for(let i=0; i<1000; i++) {
+            let shuffled = [...presentNames].sort(() => Math.random() - 0.5);
+            let groups = [];
+            
+            for(let j=0; j<shuffled.length; j+=4) { groups.push(shuffled.slice(j, j+4)); }
+            
+            let lastGroup = groups[groups.length-1];
+            if(lastGroup.length < 3 && groups.length > 1) {
+                lastGroup.push(groups[groups.length-2].pop());
+                if(lastGroup.length < 3 && groups.length > 2) lastGroup.push(groups[groups.length-3].pop());
+            }
+
+            if(checkGroupRules(groups, currentRules)) { validGroups = groups; break; }
+        }
+
+        if(validGroups) {
+            let html = "";
+            validGroups.forEach((g, idx) => {
+                html += `<div class="group-card"><h4>Group ${idx+1}</h4>`;
+                g.forEach(name => html += `<p>${name}</p>`);
+                html += `</div>`;
+            });
+            document.getElementById('group-container').innerHTML = html;
+            document.getElementById('group-modal').style.display = 'block';
+        } else {
+            alert("Could not generate groups honoring your rules. Try dragging a few specific students around manually.");
+        }
+    }
+
+    function checkGroupRules(groups, rules) {
+        for(let group of groups) {
+            for(let pair of rules.keepApart) { if(group.includes(pair[0]) && group.includes(pair[1])) return false; }
+            for(let pair of rules.keepTogether) {
+                let has1 = group.includes(pair[0]), has2 = group.includes(pair[1]);
+                if (has1 !== has2) return false; 
+            }
+        }
+        return true;
+    }
+
+    // ==========================================
+    // CLASS TIMER, SOFTER CHIME & BACKGROUND MUSIC
+    // ==========================================
+    let timeRemaining = 5 * 60; 
+    let currentPreset = 5 * 60; 
+    let timerInterval = null;
+    let musicEnabled = true;
+
+    function toggleMusic() {
+        musicEnabled = !musicEnabled;
+        document.getElementById('music-toggle').innerText = musicEnabled ? "🎵 Music: ON" : "🔇 Music: OFF";
+        let music = document.getElementById('bg-music');
+        if (!musicEnabled) {
+            music.pause();
+        } else if (timerInterval) {
+            music.play(); 
+        }
+    }
+
+    function updateTimerDisplay() {
+        let minutes = Math.floor(timeRemaining / 60);
+        let seconds = timeRemaining % 60;
+        let displayStr = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        document.getElementById('timer-display').innerText = displayStr;
+    }
+
+    function applyCustomTime() {
+        pauseTimer();
+        
+        let mins = parseInt(document.getElementById('custom-mins').value) || 0;
+        let secs = parseInt(document.getElementById('custom-secs').value) || 0;
+        
+        if (mins <= 0 && secs <= 0) {
+            secs = 30; 
+            document.getElementById('custom-secs').value = 30;
+        }
+        
+        let totalSeconds = (mins * 60) + secs;
+        currentPreset = totalSeconds;
+        timeRemaining = totalSeconds;
+        
+        document.getElementById('timer-display').style.color = '#F7EDE2'; 
+        updateTimerDisplay();
+    }
+
+    function startTimer() {
+        if (timerInterval) return; 
+        if (timeRemaining <= 0) return; 
+
+        document.getElementById('timer-display').style.color = '#F7EDE2'; 
+
+        if (musicEnabled) {
+            let music = document.getElementById('bg-music');
+            music.volume = 0.15; 
+            music.play().catch(e => console.log("Music play prevented by browser until user interacts."));
+        }
+
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerDisplay();
+            
+            if (timeRemaining <= 0) {
+                pauseTimer();
+                document.getElementById('timer-display').style.color = '#8E84A5'; 
+                playSoftChime(); 
+            }
+        }, 1000);
+    }
+
+    function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        document.getElementById('bg-music').pause(); 
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        timeRemaining = currentPreset; 
+        document.getElementById('timer-display').style.color = '#F7EDE2'; 
+        updateTimerDisplay();
+    }
+
+    function playSoftChime() {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        for (let i = 0; i < 3; i++) {
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine'; 
+            osc.frequency.setValueAtTime(650, audioCtx.currentTime + (i * 1.2)); 
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            const startTime = audioCtx.currentTime + (i * 1.2);
+            gainNode.gain.setValueAtTime(0, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.05); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 1.2); 
+            
+            osc.start(startTime);
+            osc.stop(startTime + 1.5);
+        }
+    }
+
+    // ==========================================
+    // SMART SEATING ALGORITHM
+    // ==========================================
+    function generateSmartChart() {
+        selectElement(null); 
+        for (let i = 0; i < 1000; i++) { if (attemptLayout()) return; }
+        alert("Couldn't find a perfect seating arrangement! Double-check that your rules aren't conflicting (e.g., trying to put 4 students in the 'Front' when there are only 3 front desks).");
+    }
+
+    function attemptLayout() {
+        const activeData = classData[currentClassId];
+        
+        let currentAbsent = [];
+        document.querySelectorAll('.absent-tag').forEach(t => currentAbsent.push(t.innerText));
+        
+        let pool = activeData.students.filter(name => !currentAbsent.includes(name)); 
+        
+        let seatAssignments = new Map(); 
+        let availableSeats = Array.from(allSeats);
+
+        function assignToZone(studentList, targetZone) {
+            let zoneSeats = availableSeats.filter(s => s.dataset.zone === targetZone);
+            for (let name of studentList) {
+                if (!pool.includes(name)) continue; 
+                let emptySeatsInZone = zoneSeats.filter(s => !seatAssignments.has(s));
+                if (emptySeatsInZone.length === 0) return false;
+                let chosenSeat = emptySeatsInZone[Math.floor(Math.random() * emptySeatsInZone.length)];
+                seatAssignments.set(chosenSeat, name); pool = pool.filter(s => s !== name);
+            }
+            return true;
+        }
+
+        if (!assignToZone(activeData.needsFront, 'front') || !assignToZone(activeData.needsBack, 'back') || !assignToZone(activeData.needsAlone, 'alone')) return false;
+
+        for (let pair of activeData.keepTogether) {
+            let student1 = pair[0], student2 = pair[1];
+            if (!pool.includes(student1) || !pool.includes(student2)) continue; 
+            
+            let tables = [...new Set(availableSeats.map(s => s.dataset.table))].sort(() => Math.random() - 0.5); 
+            let assigned = false;
+            for (let table of tables) {
+                let seatsAtTable = availableSeats.filter(s => s.dataset.table === table && !seatAssignments.has(s));
+                if (seatsAtTable.length >= 2) { 
+                    seatAssignments.set(seatsAtTable[0], student1); seatAssignments.set(seatsAtTable[1], student2);
+                    pool = pool.filter(s => s !== student1 && s !== student2); assigned = true; break;
+                }
+            }
+            if (!assigned) return false; 
+        }
+
+        let remainingSeats = availableSeats.filter(s => !seatAssignments.has(s));
+        while (pool.length < remainingSeats.length) pool.push(""); 
+        for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+        remainingSeats.forEach((seat, index) => seatAssignments.set(seat, pool[index]));
+
+        function getSeatTable(studentName) {
+            for (let [seat, name] of seatAssignments.entries()) { if (name === studentName) return seat.dataset.table; } return null;
+        }
+
+        for (let pair of activeData.keepApart) {
+            let t1 = getSeatTable(pair[0]), t2 = getSeatTable(pair[1]);
+            if (t1 && t2 && t1 === t2) return false; 
+        }
+
+        allSeats.forEach(seat => {
+            seat.innerText = seatAssignments.get(seat) || "";
+            updateStatus(seat);
+        });
+        
+        resetCalledList(); 
+        saveClassData(); 
+        return true;
+    }
+
+    // BOOT UP
+    loadSeatPositions(); 
+    loadClassData(); 
+    updateTimerDisplay();
+</script>
+</body>
+</html>
